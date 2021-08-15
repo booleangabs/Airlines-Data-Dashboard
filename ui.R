@@ -30,6 +30,14 @@ body <- dashboardBody(
               box(title = "Série de Despesas", width = 12, solidHeader = TRUE,
                   plotOutput('sh')
               )
+            ),
+            fluidRow(
+              box(title = 'Histograma', width = 12, solidHeader = TRUE,
+                  plotOutput('hs'))
+            ),
+            fluidRow(
+              box(title = 'Boxplot', width = 12, solidHeader = TRUE,
+                  plotOutput('bp'))
             )
     ),
     tabItem(tabName = 'comp',

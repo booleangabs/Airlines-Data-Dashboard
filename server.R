@@ -127,11 +127,6 @@ server <- function(input, output) {
     
     df_tb <- as.data.frame(t(df_tb))
     
-    # tb  <- as_tibble(cbind(nms = names(df_tb), t(df_tb)))
-    # tb <- tb %>% 
-    #     rename('InformaÃ§Ãµes' = nms,
-    #            'Valores' = V2)
-    
     return(df_tb)
   })
   
@@ -172,12 +167,62 @@ server <- function(input, output) {
     df <- df %>% filter(Year <= range[[2]])
     
     a <- df %>% 
-      ggplot(aes_(x=as.name("Year"), y = as.name(airline_name))) +
-      geom_path()+
-      ylab(as.name(y_lab)) +
-      xlab('Ano')+
-      scale_x_continuous(breaks = graph_range)
+        ggplot(aes_(x=as.name("Year"), y = as.name(airline_name))) +
+        geom_path()+
+        ylab(as.name(y_lab)) +
+        xlab('Ano')+
+        scale_x_continuous(breaks = graph_range)
     a
+  })
+  
+  output$hs <- renderPlot({
+    airline_name <- select_airline()
+    master_df <- select_dt()
+    
+    range <- select_range()
+    if(range[[1]] > range[[2]]){
+      return()
+    }
+    
+    hist_range <- range[[1]]:range[[2]]
+    
+    df <- master_df %>% filter(Year >= range[[1]]) 
+    df <- df %>% filter(Year <= range[[2]])
+    
+
+    dif <- as.numeric(range[[2]]) - as.numeric(range[[1]])
+    classes <- (sqrt(dif))
+    
+    #mean <- df %>% select(airline_name())
+    #mean <- mean %>% colMeans()
+    
+    a <- df %>%
+        ggplot(aes_(x=as.name(airline_name))) +
+        geom_histogram(color = 'white', fill = 'lightblue', bins = classes) +
+        theme_classic(base_size = 18) +
+        xlab("valor") +
+        ylab("Frequencia")
+    a
+  })
+  
+  output$bp <- renderPlot({
+      airline_name <- select_airline()
+      master_df <- select_dt()
+      
+      range <- select_range()
+      if(range[[1]] > range[[2]]){
+        return()
+      }
+      
+      hist_range <- range[[1]]:range[[2]]
+      
+      df <- master_df %>% filter(Year >= range[[1]]) 
+      df <- df %>% filter(Year <= range[[2]])
+      
+      a <- df %>% 
+          ggplot(aes_(x=as.name("Year"), y = as.name(airline_name)))+
+          geom_boxplot()
+      a
   })
   
 }
