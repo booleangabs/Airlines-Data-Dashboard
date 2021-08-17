@@ -4,15 +4,30 @@ getMode <- function(v) {
 }
 
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
   ################### INPUT ####################
+  
+  # Empresa na aba simples
   select_airline <- eventReactive(input$go, {
     airline_name <- input$airline
     
     return(airline_name)
   })
   
+  # Empresas na aba para comparacao
+  get_airline1 <- eventReactive(input$go_comp, {
+    airline_name1 <- input$airline_c1
+    
+    return(airline_name1)
+  })
+  
+  get_airline2 <- eventReactive(input$go_comp, {
+    airline_name2 <- input$airline_c2
+    
+    return(airline_name2)
+  })
+  
+  # Intervalo na aba simples
   select_range <- eventReactive(input$go, {
     start <- input$true_date
     end <- input$true_date_2
@@ -20,6 +35,15 @@ server <- function(input, output) {
     return(list(start = start, end = end))
   })
   
+  # Intervalo na aba para comparacao
+  select_range_comp <- eventReactive(input$go_comp, {
+    start <- input$true_date_c
+    end <- input$true_date_c2
+    
+    return(list(start = start, end = end))
+  })
+  
+  # Seleciona os dados para a aba simples
   select_dt <- eventReactive(input$go, {
     data <- input$data
     if(data == "Despesas"){
@@ -38,7 +62,26 @@ server <- function(input, output) {
     return(data)
   })
   
+  # Seleciona os dados para a aba de comparacao
+  select_dt_c <- eventReactive(input$go_comp, {
+    data <- input$data_comp
+    if(data == "Despesas"){
+      return(master_df = read.csv('data/airline_expenses.csv'))
+    }else{
+      if(data == "Receita"){
+        return(master_df = read.csv('data/airline_revenues.csv'))
+      }else{
+        return(master_df= read.csv('data/airline_passengers.csv'))
+      }
+    }
+  })
   
+  info_selected_c <- eventReactive(input$go_comp, {
+    data <- input$data_comp
+    return(data)
+  })
+  
+  # Seletor do input de intervalo da aba simples
   output$starttime <- renderUI({
     
     airline_name <- input$airline
@@ -64,7 +107,33 @@ server <- function(input, output) {
     
   })
   
-  output$timedate_comp <- renderUI({
+  # Seletor do input de intervalo da aba
+  output$starttime_comp <- renderUI({
+    
+    airline_name <- input$airline
+    
+    df <- read.csv('data/airline_expenses.csv')
+    
+    years <- df$Year
+    names(years) <- years
+    
+    selectInput("true_date_c", "Inicio da análise", choices= years)
+    
+  })
+  
+  output$endtime_comp <- renderUI({
+    airline_name <- input$airline
+    
+    df <- read.csv('data/airline_expenses.csv')
+    
+    years <- df$Year
+    names(years) <- years
+    
+    selectInput("true_date_c2", "Fim da análise", choices= years)
+    
+  })
+  
+  output$timedate__ <- renderUI({
     
     stock_name <- input$stock_comp
     
@@ -200,7 +269,7 @@ server <- function(input, output) {
         ggplot(aes_(x=as.name(airline_name))) +
         geom_histogram(color = 'white', fill = 'lightblue', bins = classes) +
         theme_classic(base_size = 18) +
-        xlab("valor") +
+        xlab("Valores") +
         ylab("Frequencia")
     a
   })
@@ -225,4 +294,163 @@ server <- function(input, output) {
       a
   })
   
+  output$comp_sh1 <- renderPlot({
+    airline1 <- get_airline1()
+    master_df <- select_dt_c()
+    
+    range <- select_range_comp()
+    if(range[[1]] >= range[[2]]){
+      return()
+    }
+    
+    graph_range <- range[[1]]:range[[2]]
+    
+    info <- info_selected_c()
+    
+    y_lab <- 'Despesas em $'
+    if(info == 'Receita'){
+      y_lab <- 'Receita em $'
+    }else{
+      if(info == 'Passageiros'){
+        y_lab <- 'Passageiros'
+      }
+    }
+    
+    df <- master_df %>% filter(Year >= range[[1]]) 
+    df <- df %>% filter(Year <= range[[2]])
+    
+    a <- df %>% 
+      ggplot(aes_(x=as.name("Year"), y = as.name(airline1))) +
+      geom_path()+
+      ylab(as.name(y_lab)) +
+      xlab('Ano')+
+      scale_x_continuous(breaks = graph_range)
+    a
+  })
+  
+  output$comp_sh2 <- renderPlot({
+    airline2 <- get_airline2()
+    master_df <- select_dt_c()
+    
+    range <- select_range_comp()
+    if(range[[1]] >= range[[2]]){
+      return()
+    }
+    
+    graph_range <- range[[1]]:range[[2]]
+    
+    info <- info_selected_c()
+    
+    y_lab <- 'Despesas em $'
+    if(info == 'Receita'){
+      y_lab <- 'Receita em $'
+    }else{
+      if(info == 'Passageiros'){
+        y_lab <- 'Passageiros'
+      }
+    }
+    
+    df <- master_df %>% filter(Year >= range[[1]]) 
+    df <- df %>% filter(Year <= range[[2]])
+    
+    a <- df %>% 
+      ggplot(aes_(x=as.name("Year"), y = as.name(airline2))) +
+      geom_path()+
+      ylab(as.name(y_lab)) +
+      xlab('Ano')+
+      scale_x_continuous(breaks = graph_range)
+    a
+  })
+  
+  output$comp_sc <- renderPlot({
+    airline1 <- get_airline1()
+    airline2 <- get_airline2()
+    if (airline1==airline2) {
+      return()
+    }
+    master_df <- select_dt_c()
+    
+    range <- select_range_comp()
+    if(range[[1]] >= range[[2]]){
+      return()
+    }
+    
+    graph_range <- range[[1]]:range[[2]]
+    
+    
+    df <- master_df %>% filter(Year >= range[[1]]) 
+    df <- df %>% filter(Year <= range[[2]])
+    
+    df %>% ggplot(aes(x=airline1, y=airline2)) + geom_point()
+    
+  })
+  
+  output$comp_bm <- renderPlot({
+    airline1 <- get_airline1()
+    airline2 <- get_airline2()
+    if (airline1==airline2) {
+      return()
+    }
+    master_df <- select_dt_c()
+    
+    range <- select_range_comp()
+    if(range[[1]] >= range[[2]]){
+      return()
+    }
+    
+    graph_range <- range[[1]]:range[[2]]
+  
+    df <- master_df %>% filter(Year >= range[[1]]) 
+    df <- df %>% filter(Year <= range[[2]])
+    
+    df1 <- df %>% select(airline1)
+    df2 <- df %>% select(airline2)
+    
+    mean1 <- df1 %>% colMeans()
+    mean2 <- df2 %>% colMeans()
+    
+    data <- data.frame(
+      airline=c(airline1, airline2) ,  
+      mean=c(mean1, mean2)
+    )
+    
+    ggplot(data, aes(x=airline, y=mean)) + geom_bar(stat = "identity")
+    
+    
+  })
+  
+  output$corr_cm <- renderDT({
+    
+    airline1 <- get_airline1()
+    airline2 <- get_airline2()
+    if (airline1==airline2) {
+      return()
+    }
+    master_df <- select_dt_c()
+    
+    range <- select_range_comp()
+    if(range[[1]] >= range[[2]]){
+      return()
+    }
+    
+    graph_range <- range[[1]]:range[[2]]
+    
+    df <- master_df %>% filter(Year >= range[[1]]) 
+    df <- df %>% filter(Year <= range[[2]])
+    df <- df %>% select(airline1, airline2)
+    
+    
+    corr_dt <- data.frame(
+      Correlacao=cor(df)
+    )
+    
+    corr_dt %>%
+      as.data.frame() %>% 
+      DT::datatable(options=list(
+        language=list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Portuguese-Brasil.json'
+        )
+      ))
+  })
+
 }

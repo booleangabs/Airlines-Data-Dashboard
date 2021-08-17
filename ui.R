@@ -1,11 +1,12 @@
 
 
-header <- dashboardHeader(title = "Projeto de EstatÃ­stica")
+header <- dashboardHeader(title = "Projeto 2 - ET586")
 
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Métricas", tabName = "m", icon = icon("chart-line")),
-    menuItem('Comparando Empresas Aereas', tabName = 'comp', icon = icon('chart-bar'))
+    menuItem('Comparando Empresas Aéreas', tabName = 'comp', icon = icon('chart-bar')),
+    menuItem('Desenvolvedores', tabName = 'inform', icon=icon('cog'))
   )
 )
 
@@ -27,7 +28,7 @@ body <- dashboardBody(
               )
             ),
             fluidRow(
-              box(title = "Série de Despesas", width = 12, solidHeader = TRUE,
+              box(title = "Série", width = 12, solidHeader = TRUE,
                   plotOutput('sh')
               )
             ),
@@ -43,11 +44,44 @@ body <- dashboardBody(
     tabItem(tabName = 'comp',
             fluidRow(
               box(title = 'Selecione suas opções', width=12, solidHeader = TRUE, status='warning',
-                  selectInput('airline_comp', 'Empresa', airline_list, multiple=TRUE),
+                  selectInput('airline_c1', 'Empresa 1', airline_list, multiple=FALSE),
+                  selectInput('airline_c2', 'Empresa 2', airline_list, multiple=FALSE),
+                  selectInput('data_comp', 'Tipo de informação', data_options, multiple=FALSE),
+                  box(uiOutput("starttime_comp"), solidHeader = TRUE),
+                  box(uiOutput("endtime_comp"), solidHeader = TRUE),
                   uiOutput("timedate_comp"),
                   actionButton('go_comp', 'Submeter')
               )
-            ),            
+            ), 
+            fluidRow(
+              box(title = 'Série da Empresa 1', width = 12, solidHeader = TRUE,
+                  plotOutput('comp_sh1')),
+              box(title = 'Série da Empresa 2', width = 12, solidHeader = TRUE,
+                  plotOutput('comp_sh2'))
+            ),
+            fluidRow(
+              box(title = 'Gráfico de Dispersão', width = 12, solidHeader = TRUE,
+                  plotOutput('comp_sc'))
+            ),
+            fluidRow(
+              box(title= 'Barras das Médias', width = 12, solidHeader = TRUE,
+                  plotOutput('comp_bm'))
+            ),
+            fluidRow(
+              box(title = "Correlação", width = 12, solidHeader = TRUE,
+                  DTOutput('corr_cm')
+              )
+            ),
+    ),
+    tabItem(tabName = 'inform',
+            fluidRow(
+              box(title='Desenvolvedores', width = 12, solidHeader = TRUE,
+                  tags$p('>> Antônio Bento de Souza <absn3>'),
+                  tags$p('>> José Gabriel Pereira Tavares <jgpt>'),
+                  tags$br(),
+                  tags$p('Graduação em Ciência da Computação 2020.2 (CIn-UFPE)')
+              )
+            ),
     )
   )
 )
