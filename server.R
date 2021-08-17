@@ -381,7 +381,7 @@ server <- function(input, output) {
     df <- master_df %>% filter(Year >= range[[1]]) 
     df <- df %>% filter(Year <= range[[2]])
     
-    df %>% ggplot(aes(x=airline1, y=airline2)) + geom_point()
+    df %>% ggplot(aes_(x = as.name(airline1), y = as.name(airline2))) + geom_point(size = 2)
     
   })
   
@@ -452,5 +452,7 @@ server <- function(input, output) {
         )
       ))
   })
-
+  
+  
+  
 }

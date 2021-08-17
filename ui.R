@@ -76,7 +76,7 @@ body <- dashboardBody(
     tabItem(tabName = 'inform',
             fluidRow(
               box(title='Desenvolvedores', width = 12, solidHeader = TRUE,
-                  tags$p('>> Antônio Bento de Souza <absn3>'),
+                  tags$p('>> Antonio Bento de Souza Neto <absn3>'),
                   tags$p('>> José Gabriel Pereira Tavares <jgpt>'),
                   tags$br(),
                   tags$p('Graduação em Ciência da Computação 2020.2 (CIn-UFPE)')
