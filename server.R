@@ -57,6 +57,7 @@ server <- function(input, output) {
     }
   })
   
+  # Nome da informacao desejada
   info_selected <- eventReactive(input$go, {
     data <- input$data
     return(data)
@@ -76,6 +77,7 @@ server <- function(input, output) {
     }
   })
   
+  # Nome da informacao desejada
   info_selected_c <- eventReactive(input$go_comp, {
     data <- input$data_comp
     return(data)
@@ -133,32 +135,9 @@ server <- function(input, output) {
     
   })
   
-  output$timedate__ <- renderUI({
-    
-    stock_name <- input$stock_comp
-    
-    df <- master_df %>% 
-      filter(Index %in% stock_name)
-    
-    maxmin_time <- df %>% 
-      group_by(Index) %>% 
-      summarise(MD = min(Date)) %>% 
-      .$MD %>% 
-      max()
-    
-    minmax_time <- df %>% 
-      group_by(Index) %>% 
-      summarise(MD = max(Date)) %>% 
-      .$MD %>% 
-      min()
-    
-    min_time <- maxmin_time
-    max_time <- minmax_time
-    
-    
-  })
-  
   ################ OUTPUT #####################
+  
+  # Carrega a tabela de informacao da aba simples
   Info_DataTable <- eventReactive(input$go,{
     
     master_df <- select_dt()
@@ -199,6 +178,7 @@ server <- function(input, output) {
     return(df_tb)
   })
   
+  # Renderiza a tabela de informacoes
   output$info <- renderDT({
     Info_DataTable() %>%
       as.data.frame() %>% 
@@ -209,6 +189,7 @@ server <- function(input, output) {
       ))
   })
   
+  # Grafico da serie na aba simples
   output$sh <- renderPlot({
     # All the inputs
     airline_name <- select_airline()
@@ -244,6 +225,7 @@ server <- function(input, output) {
     a
   })
   
+  # Grafico do histograma na aba simples
   output$hs <- renderPlot({
     airline_name <- select_airline()
     master_df <- select_dt()
@@ -262,9 +244,6 @@ server <- function(input, output) {
     dif <- as.numeric(range[[2]]) - as.numeric(range[[1]])
     classes <- (sqrt(dif))
     
-    #mean <- df %>% select(airline_name())
-    #mean <- mean %>% colMeans()
-    
     a <- df %>%
         ggplot(aes_(x=as.name(airline_name))) +
         geom_histogram(color = 'white', fill = 'lightblue', bins = classes) +
@@ -274,6 +253,7 @@ server <- function(input, output) {
     a
   })
   
+  # Grafico de caixa na aba simples
   output$bp <- renderPlot({
       airline_name <- select_airline()
       master_df <- select_dt()
@@ -294,6 +274,21 @@ server <- function(input, output) {
       a
   })
   
+  # Renderiza a 1a serie na aba de comparacao
+  output$serie1 <- renderUI({
+    name <- get_airline1()
+    box(title = paste('Série da Empresa', name), width = 12, solidHeader = TRUE,
+        plotOutput('comp_sh1'))
+  })
+  
+  # Renderiza a 2a serie na aba de comparacao
+  output$serie2 <- renderUI({
+    name <- get_airline2()
+    box(title = paste('Série da Empresa', name), width = 12, solidHeader = TRUE,
+        plotOutput('comp_sh2'))
+  })
+  
+  # Grafico da 1a serie na aba de comparacao
   output$comp_sh1 <- renderPlot({
     airline1 <- get_airline1()
     master_df <- select_dt_c()
@@ -328,6 +323,7 @@ server <- function(input, output) {
     a
   })
   
+  # Grafico da 2a serie na aba de comparacao
   output$comp_sh2 <- renderPlot({
     airline2 <- get_airline2()
     master_df <- select_dt_c()
@@ -362,6 +358,7 @@ server <- function(input, output) {
     a
   })
   
+  # Grafico de dispersao na aba de comparacao
   output$comp_sc <- renderPlot({
     airline1 <- get_airline1()
     airline2 <- get_airline2()
@@ -385,6 +382,7 @@ server <- function(input, output) {
     
   })
   
+  # Grafico de barra das medias na aba de comparacao
   output$comp_bm <- renderPlot({
     airline1 <- get_airline1()
     airline2 <- get_airline2()
@@ -419,8 +417,8 @@ server <- function(input, output) {
     
   })
   
+  # Tabela de correlacao das series
   output$corr_cm <- renderDT({
-    
     airline1 <- get_airline1()
     airline2 <- get_airline2()
     if (airline1==airline2) {
@@ -439,9 +437,8 @@ server <- function(input, output) {
     df <- df %>% filter(Year <= range[[2]])
     df <- df %>% select(airline1, airline2)
     
-    
     corr_dt <- data.frame(
-      Correlacao=cor(df)
+      Correlacao_com_=cor(df)
     )
     
     corr_dt %>%

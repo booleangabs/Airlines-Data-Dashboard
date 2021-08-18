@@ -54,10 +54,8 @@ body <- dashboardBody(
               )
             ), 
             fluidRow(
-              box(title = 'Série da Empresa 1', width = 12, solidHeader = TRUE,
-                  plotOutput('comp_sh1')),
-              box(title = 'Série da Empresa 2', width = 12, solidHeader = TRUE,
-                  plotOutput('comp_sh2'))
+              uiOutput('serie1', width = 12, solidHeader = TRUE),
+              uiOutput('serie2', width = 12, solidHeader = TRUE),
             ),
             fluidRow(
               box(title = 'Gráfico de Dispersão', width = 12, solidHeader = TRUE,
